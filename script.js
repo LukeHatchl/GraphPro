@@ -81,6 +81,12 @@ svg.append("g")
         .tickFormat(""));
 
 
+// Function to generate data points
+function generateData(xMin, xMax) {
+    const length = xMax - xMin + 1; // Calculate the number of points based on the bounds
+    return Array.from({ length }, (_, i) => ({ x: xMin + i }));
+}
+
 // Get the user's input
 // Parse the function input to extract the values of m and b
 // If the input is invalid, stop the function execution
@@ -101,7 +107,11 @@ function plotFunction() {
 
     svg.selectAll(".line").remove();
 
-    const data = Array.from({ length: 10 }, (_, i) => ({ x: i }));
+    // Get current bounds of the graph
+    const bounds = getBounds();
+
+    // Generate data based on the current bounds
+    const data = generateData(bounds.xMin, bounds.xMax);
 
     const line = d3.line()
          .x(d => xScale(d.x))    
@@ -114,14 +124,21 @@ function plotFunction() {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
-
-    svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(xAxis);
-
-    svg.append("g")
-    .call(yAxis);
 }
+
+function getBounds() {
+    // Retrieve the current domain of the x and y scales
+    const xDomain = xScale.domain();
+    const yDomain = yScale.domain();
+
+    return {
+        xMin: xDomain[0],
+        xMax: xDomain[1],
+        yMin: yDomain[0],
+        yMax: yDomain[1]
+    };
+}
+
 
 function updateBounds() {
     // Get the selected values from the dropdowns
@@ -177,5 +194,5 @@ function updateBounds() {
     );
 
     // Optionally, you may want to re-draw any existing graph lines
-    // plotFunction();
+    plotFunction();
 }
