@@ -54,18 +54,20 @@ const yScale = d3.scaleLinear()
     .range([height, 0]);
 
 const xAxis = d3.axisBottom(xScale);
-const yAxis = d3.axisLeft(yScale)
+const yAxis = d3.axisLeft(yScale);
 
 svg.append("g")
+    .attr("class", "x-axis")
     .attr("transform", `translate(0,${height})`)
     .call(xAxis);
 
 svg.append("g")
+    .attr("class", "y-axis")
     .call(yAxis);
 
 // Add the X gridlines
 svg.append("g")     
-    .attr("class", "grid")
+    .attr("class", "grid-x")
     .attr("transform", `translate(0,${height})`)
     .call(makeXGridlines()
         .tickSize(-height)
@@ -73,7 +75,7 @@ svg.append("g")
 
 // Add the Y gridlines
 svg.append("g")     
-    .attr("class", "grid")
+    .attr("class", "grid-y")
     .call(makeYGridlines()
         .tickSize(-width)
         .tickFormat(""));
@@ -132,18 +134,48 @@ function updateBounds() {
     xScale.domain([xMin, xMax]);
     yScale.domain([yMin, yMax]);
 
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
     // Redraw the axes with the updated bounds
-    svg.selectAll("g.axis").remove();  // Remove existing axes
+    // Remove existing axes
+    svg.selectAll("g.x-axis").remove();
+    svg.selectAll("g.y-axis").remove();
+    svg.selectAll("g.grid-x").remove();
+    svg.selectAll("g.grid-y").remove();
+    
 
     svg.append("g")
-       .attr("class", "x axis")
-       .attr("transform", `translate(0,${height})`)
+       .attr("class", "x-axis")
+       .attr("transform", `translate(0,${yScale(0)})`)
        .call(xAxis);
 
     svg.append("g")
-       .attr("class", "y axis")
+       .attr("class", "y-axis")
+       .attr("transform", `translate(${xScale(0)}, 0)`)
        .call(yAxis);
 
+    // Add the X gridlines
+    svg.append("g")     
+    .attr("class", "grid-x")
+    .attr("transform", `translate(0,${height})`)
+    .call(
+        d3.axisBottom(xScale)
+                .ticks(10)
+                .tickSize(-height)
+                .tickFormat("")
+    );
+
+    // Add the Y gridlines
+    svg.append("g")     
+    .attr("class", "grid-y")
+    .call(
+        d3.axisLeft(yScale)
+                .ticks(10)
+                .tickSize(-width)
+                .tickFormat("")
+    );
+
     // Optionally, you may want to re-draw any existing graph lines
-    plotFunction();
+    // plotFunction();
 }
